@@ -29,7 +29,10 @@ jobs:
       - name: Get versions
         id: get_version
         run: |
-          echo "TAG_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          TAG_VERSION=${GITHUB_REF#refs/tags/}
+          VERSION=${TAG_VERSION#v}
+          echo "TAG_VERSION=$TAG_VERSION" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
           MC_VERSION=$(grep "minecraft_version" gradle.properties | cut -d'=' -f2)
           echo "MC_VERSION=$MC_VERSION" >> $GITHUB_OUTPUT
 
@@ -38,8 +41,8 @@ jobs:
         with:
           name: Press2Hold ${{ steps.get_version.outputs.MC_VERSION }}-${{ steps.get_version.outputs.TAG_VERSION }}
           files: |
-            build/libs/press2hold-${{ steps.get_version.outputs.TAG_VERSION }}.jar
-            build/libs/press2hold-${{ steps.get_version.outputs.TAG_VERSION }}-sources.jar
+            build/libs/press2hold-${{ steps.get_version.outputs.VERSION }}.jar
+            build/libs/press2hold-${{ steps.get_version.outputs.VERSION }}-sources.jar
           draft: false
           prerelease: false
           generate_release_notes: true
