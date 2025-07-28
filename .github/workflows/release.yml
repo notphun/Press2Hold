@@ -4,6 +4,9 @@ on:
     tags:
       - "v*" # This will trigger the workflow on any tag that starts with 'v'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
