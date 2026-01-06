@@ -64,7 +64,3 @@ Press2Hold is a lightweight Fabric Minecraft **client** mod that enables players
 - Yarn mappings (used by Loom)
 - Gradle + fabric-loom plugin (build tooling)
 - Mixin runtime (for mixin-based modifications)
-
----
-
-If you'd like, I can also add a minimal CI workflow and a formatter check to enforce these conventions automatically.
