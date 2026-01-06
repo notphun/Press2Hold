@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.11.1'
+	id 'fabric-loom' version '1.12-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -7,7 +7,7 @@ version = project.mod_version
 group = project.maven_group
 
 base {
-	archivesName = "${project.archives_base_name}-fabric-${project.minecraft_version}-${project.mod_version}"
+	archivesName = project.archives_base_name
 }
 
 repositories {
@@ -64,18 +64,11 @@ java {
 }
 
 jar {
-	inputs.property "version", project.version
-	inputs.property "mcversion", project.minecraft_version
-
-	archiveBaseName = "${project.archives_base_name}-fabric-${project.minecraft_version}"
+	inputs.property "archivesName", project.base.archivesName
 
 	from("LICENSE") {
-		rename { "${it}_${archiveBaseName.get()}-${version}"}
+		rename { "${it}_${inputs.properties.archivesName}"}
 	}
-}
-
-sourcesJar {
-    archiveBaseName = "${project.archives_base_name}-fabric-${project.minecraft_version}"
 }
 
 // configure the maven publication
