@@ -2,13 +2,13 @@ package com.kwesou;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.text.Text;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +16,7 @@ import java.util.Set;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Press2HoldClient implements ClientModInitializer {
-	private static KeyBinding keyBinding;
+	private static KeyMapping keyBinding;
 	private static boolean isLatched = false;
 	Set<Integer> pressedKeys = new HashSet<>();
 	Set<Integer> pressedMouseButtons = new HashSet<>();
@@ -24,67 +24,70 @@ public class Press2HoldClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+		keyBinding = KeyMappingHelper.registerKeyMapping(new KeyMapping(
 				"key.press2hold.latch",
-				InputUtil.Type.KEYSYM,
+				InputConstants.Type.KEYSYM,
 				GLFW_KEY_G,
-				KeyBinding.Category.create(Identifier.of("press2hold:press2hold"))
+				KeyMapping.Category.register(Identifier.parse("press2hold:press2hold"))
 		));
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			while (keyBinding.wasPressed()) {
+			while (keyBinding.consumeClick()) {
 				isLatched = !isLatched;
 				getCurrentlyPressedInputs();
 
 				if (isLatched && (!pressedKeys.isEmpty() || !pressedMouseButtons.isEmpty())) {
 					for (int key : pressedKeys) {
-						InputUtil.Key keyObj = InputUtil.Type.KEYSYM.createFromCode(key);
-						KeyBinding.setKeyPressed(keyObj, true);
+						InputConstants.Key keyObj = InputConstants.Type.KEYSYM.getOrCreate(key);
+						KeyMapping.set(keyObj, true);
 						pressedKeyNames.add(getKeyName(key));
 					}
 					for (int button : pressedMouseButtons) {
-						KeyBinding.setKeyPressed(InputUtil.Type.MOUSE.createFromCode(button), true);
+						KeyMapping.set(InputConstants.Type.MOUSE.getOrCreate(button), true);
 						pressedKeyNames.add("MOUSE" + button);
 					}
-					assert client.player != null;
-					client.player.sendMessage(Text.of("Latching: " + pressedKeyNames.toString()), false);
+					if (client.player != null) {
+						client.player.sendSystemMessage(Component.literal("Latching: " + pressedKeyNames.toString()));
+					}
 				} else if (pressedKeys.isEmpty() && pressedMouseButtons.isEmpty()) {
-					assert client.player != null;
-					client.player.sendMessage(Text.of("Invalid inputs pressed"), false);
+					if (client.player != null) {
+						client.player.sendSystemMessage(Component.literal("Invalid inputs pressed"));
+					}
 					isLatched = false;
 					pressedKeys.clear();
 					pressedMouseButtons.clear();
 					pressedKeyNames.clear();
 				} else {
 					for (int key : pressedKeys) {
-						InputUtil.Key keyObj = InputUtil.Type.KEYSYM.createFromCode(key);
-						KeyBinding.setKeyPressed(keyObj, false);
+						InputConstants.Key keyObj = InputConstants.Type.KEYSYM.getOrCreate(key);
+						KeyMapping.set(keyObj, false);
 					}
 					for (int button : pressedMouseButtons) {
-						KeyBinding.setKeyPressed(InputUtil.Type.MOUSE.createFromCode(button), false);
+						KeyMapping.set(InputConstants.Type.MOUSE.getOrCreate(button), false);
 					}
 					pressedKeys.clear();
 					pressedMouseButtons.clear();
 					pressedKeyNames.clear();
-					assert client.player != null;
-					client.player.sendMessage(Text.of("Unlatched"), false);
+					if (client.player != null) {
+						client.player.sendSystemMessage(Component.literal("Unlatched"));
+					}
 				}
 			}
 			if (isLatched) {
 				for (int key : pressedKeys) {
-					InputUtil.Key keyObj = InputUtil.Type.KEYSYM.createFromCode(key);
-					KeyBinding.setKeyPressed(keyObj, true);
+					InputConstants.Key keyObj = InputConstants.Type.KEYSYM.getOrCreate(key);
+					KeyMapping.set(keyObj, true);
 				}
 				for (int button : pressedMouseButtons) {
-					KeyBinding.setKeyPressed(InputUtil.Type.MOUSE.createFromCode(button), true);
+					KeyMapping.set(InputConstants.Type.MOUSE.getOrCreate(button), true);
 				}
 			} else {
 				for (int key : pressedKeys) {
-					InputUtil.Key keyObj = InputUtil.Type.KEYSYM.createFromCode(key);
-					KeyBinding.setKeyPressed(keyObj, false);
+					InputConstants.Key keyObj = InputConstants.Type.KEYSYM.getOrCreate(key);
+					KeyMapping.set(keyObj, false);
 				}
 				for (int button : pressedMouseButtons) {
-					KeyBinding.setKeyPressed(InputUtil.Type.MOUSE.createFromCode(button), false);
+					KeyMapping.set(InputConstants.Type.MOUSE.getOrCreate(button), false);
 				}
 			}
 		});
@@ -112,8 +115,8 @@ public class Press2HoldClient implements ClientModInitializer {
 	}
 
 	public void getCurrentlyPressedInputs() {
-		long windowHandle = MinecraftClient.getInstance().getWindow().getHandle();
-		int keyCode = keyBinding.getDefaultKey().getCode();
+		long windowHandle = Minecraft.getInstance().getWindow().handle();
+		int keyCode = keyBinding.getDefaultKey().getValue();
 
 		for (int key = GLFW.GLFW_KEY_SPACE; key <= GLFW.GLFW_KEY_LAST; key++) {
 			if (key != keyCode && glfwGetKey(windowHandle, key) == GLFW_PRESS) {
