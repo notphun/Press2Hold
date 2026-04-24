@@ -1,0 +1,56 @@
+plugins {
+    id "net.fabricmc.fabric-loom"
+    id 'maven-publish'
+    id 'java'
+}
+
+base {
+	archivesName = "press2hold-v${project.mod_version}-${project.minecraft_version}"
+}
+
+loom {
+	splitEnvironmentSourceSets()
+
+	mods {
+		"press2hold" {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
+
+}
+
+dependencies {
+	// To change the versions see the gradle.properties file
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Fabric API. This is technically optional, but you probably want it anyway.
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	
+	implementation project(":common")
+    clientImplementation project(":common")
+	include project(":common")
+}
+
+processResources {
+	inputs.property "version", project.mod_version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": inputs.properties.version
+	}
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+jar {
+	inputs.property "archivesName", project.base.archivesName
+
+	from("LICENSE") {
+		rename { "${it}_${inputs.properties.archivesName}"}
+	}
+}

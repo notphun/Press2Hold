@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "press2hold",
+	"version": "${version}",
+	"name": "Press2Hold",
+	"description": "Minecraft mod that holds down any key you had pressed when you hit a keybind.",
+	"authors": [
+		"kwesou"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/press2hold/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"client": [
+			"com.kwesou.Press2HoldClient"
+		]
+	},
+	"mixins": [
+		"press2hold.mixins.json",
+		{
+			"config": "press2hold.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.16.10",
+		"minecraft": ">=26.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
