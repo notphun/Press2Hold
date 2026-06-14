@@ -2,6 +2,10 @@ plugins {
     id 'java'
 }
 
+dependencies {
+    compileOnly "org.slf4j:slf4j-api:2.0.13"
+}
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)

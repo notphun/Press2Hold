@@ -1,7 +1,7 @@
 plugins {
-    id "net.fabricmc.fabric-loom"
-    id 'maven-publish'
-    id 'java'
+	id "net.fabricmc.fabric-loom"
+	id 'maven-publish'
+	id 'java'
 }
 
 base {
@@ -27,9 +27,9 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	
+
 	implementation project(":common")
-    clientImplementation project(":common")
+	clientImplementation project(":common")
 	include project(":common")
 }
 
@@ -42,9 +42,9 @@ processResources {
 }
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
-    }
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(25)
+	}
 }
 
 jar {
